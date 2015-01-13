@@ -15,14 +15,13 @@ Collection of classes to access crypto coins information quickly and easily
 Read wallet address:
 
 ```Objective-C
-
-    [[ZRRequestConnector sharedInstance] setDelegate:self];
-		[[ZRRequestConnector sharedInstance] requestWalletValue:@"BTC" forAddress:@"ANY_VALID_ADDRESS"];
+[[ZRRequestConnector sharedInstance] setDelegate:self];
+[[ZRRequestConnector sharedInstance] requestWalletValue:@"BTC" forAddress:@"ANY_VALID_ADDRESS"];
 ```
 
 Implement following method to get the response:
 ```Objective-C
-	- (void)didReceiveWalletData:(NSDictionary *)walletData
+- (void)didReceiveWalletData:(NSDictionary *)walletData
 ```
 #License
 MIT License (MIT)
