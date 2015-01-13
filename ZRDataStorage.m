@@ -27,4 +27,17 @@
 
 @implementation ZRDataStorage
 
++ (ZRDataStorage*)sharedInstance{
+    
+    //create singleton instance
+    static dispatch_once_t predicate = 0;
+    
+    static ZRDataStorage *instance = nil;
+    
+    dispatch_once(&predicate,^{
+        instance = [[self alloc] init];
+    });
+    return instance;
+}
+
 @end

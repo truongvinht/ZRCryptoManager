@@ -93,7 +93,7 @@
     }
     
     //load the wallet explorer dictionary
-    NSString *path = [[NSBundle mainBundle] pathForResource:@"WalletSource" ofType:@"plist"];
+    NSString *path = [[NSBundle mainBundle] pathForResource:ZREQ_WALLET_SOURCE_PLIST ofType:@"plist"];
     NSDictionary *walletDictionary = [NSDictionary dictionaryWithContentsOfFile:path];
     
     NSDictionary *walletMetaData = [walletDictionary objectForKey:symbol];

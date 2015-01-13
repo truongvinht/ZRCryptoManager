@@ -26,10 +26,19 @@
 #ifndef ZRDATA_STORAGE__H
 #define ZRDATA_STORAGE__H
 
+#ifndef ZRDATA_DB_PATH
+#define ZRDATA_DB_PATH @"test.sqlite"
+#endif
+
 #import <Foundation/Foundation.h>
 
 /*! Class to handle all data storage*/
 @interface ZRDataStorage : NSObject
+
+/** Singleton method to access the data storage
+ *  @return singleton instance
+ */
++ (ZRDataStorage*)sharedInstance;
 
 @end
 

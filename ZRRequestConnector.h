@@ -36,6 +36,11 @@ typedef enum{
     ZRequestErrorNotSupportSymbol = 3
 }ZRequestError;
 
+#ifndef ZREQ_WALLET_SOURCE_PLIST
+#define ZREQ_WALLET_SOURCE_PLIST @"WalletSource"
+#endif
+
+/*! Protocol to handle callbacks*/
 @protocol ZRequestConnectionDelegate <NSObject>
 
 @optional
