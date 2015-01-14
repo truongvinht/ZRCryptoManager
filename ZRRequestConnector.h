@@ -40,6 +40,10 @@ typedef enum{
 #define ZREQ_WALLET_SOURCE_PLIST @"WalletSource"
 #endif
 
+#ifndef ZREQ_MARKET_LIST_PLIST
+#define ZREQ_MARKET_LIST_PLIST @"MarketList"
+#endif
+
 /*! Protocol to handle callbacks*/
 @protocol ZRequestConnectionDelegate <NSObject>
 
@@ -53,6 +57,17 @@ typedef enum{
  *  @param error contains the error for the failed request
  */
 - (void)didFailedReceivingWalletData:(NSError*)error;
+
+/** Method will be called after request for market information was successful
+ *  @param marketData contains requested data (NSData)
+ *  @param market is the target market
+ */
+- (void)didReceiveMarketData:(id)marketData market:(NSUInteger)market;
+
+/** Method will be called after request for market failed
+ *  @param error contains the error for the failed request
+ */
+- (void)didFailedReceivingMarketData:(NSError*)error;
 
 @end
 
@@ -77,6 +92,12 @@ typedef enum{
 /** Method to cancel all wallet balance requests
  */
 - (void)cancelAllWalletRequest;
+
+/** Method to request market informations
+ *  @param market is the target market
+ */
+- (void)requestMarketInformation:(NSUInteger)market;
+
 @end
 
 #endif

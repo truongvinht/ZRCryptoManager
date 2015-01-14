@@ -25,6 +25,7 @@
 
 #import "ZRRequestConnector.h"
 #import "ZRRequestWalletDataOperation.h"
+#import "ZRRequestMarketDataOperation.h"
 
 /// set 10 seconds delay after each request
 #define ZREQUEST_DELAY_IN_QUEUE 10
@@ -137,6 +138,12 @@
 
 - (void)cancelAllWalletRequest{
     [self.requestQueue cancelAllOperations];
+}
+
+
+- (void)requestMarketInformation:(NSUInteger)market{
+    ZRRequestMarketDataOperation *marketRequest = [[ZRRequestMarketDataOperation alloc] initWithTarget:_delegate market:market];
+    [_requestQueue addOperation:marketRequest];
 }
 
 @end
