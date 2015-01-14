@@ -60,19 +60,33 @@
 		<key>name</key>
 		<string>Curecoin</string>
 	</dict>
-	<key>DARK</key>
+	<key>DRK</key>
 	<dict>
 		<key>url</key>
 		<string>http://chainz.cryptoid.info/drkc/api.dws?q=getbalance&amp;a=%@</string>
 		<key>name</key>
 		<string>Darkcoin</string>
 	</dict>
-	<key>UPM</key>
+	<key>UNO</key>
 	<dict>
 		<key>url</key>
 		<string>http://chainz.cryptoid.info/upm/api.dws?q=getbalance&amp;a=%@</string>
 		<key>name</key>
 		<string>Unobtanium</string>
+	</dict>
+	<key>DOGE</key>
+	<dict>
+		<key>url</key>
+		<string>http://dogechain.info/chain/Dogecoin/q/addressbalance/%@</string>
+		<key>name</key>
+		<string>Dogecoin</string>
+	</dict>
+	<key>PPC</key>
+	<dict>
+		<key>url</key>
+		<string>http://dogechain.info/chain/Dogecoin/q/addressbalance/%@</string>
+		<key>name</key>
+		<string>Peercoin</string>
 	</dict>
 </dict>
 </plist>
