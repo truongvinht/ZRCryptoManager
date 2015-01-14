@@ -117,12 +117,25 @@
     }
     
     //try to extract the data as JSON
-    NSDictionary *quotes = [NSJSONSerialization JSONObjectWithData:requestedData options:NSJSONReadingMutableContainers error:&error];
+    id quotes = [NSJSONSerialization JSONObjectWithData:requestedData options:NSJSONReadingMutableContainers error:&error];
     
-    NSMutableDictionary *responseData = [NSMutableDictionary dictionaryWithDictionary:quotes];
+    NSMutableDictionary *responseData = nil;
+    
+    //check wether its an array
+    if ([[quotes class] isSubclassOfClass:[NSArray class]]) {
+        responseData = [NSMutableDictionary dictionaryWithDictionary:[quotes lastObject]];
+    }
+    
+    //check wether response is a dictionary
+    if ([[quotes class] isSubclassOfClass:[NSDictionary class]]) {
+        responseData = [NSMutableDictionary dictionaryWithDictionary:quotes];
+    }
+    
     
     //parse it as string
-    if (!quotes) {
+    if (!responseData) {
+        
+        responseData = [NSMutableDictionary dictionary];
         
         NSString *response =[[NSString alloc] initWithData:requestedData encoding:NSUTF8StringEncoding];
         

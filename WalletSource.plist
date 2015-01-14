@@ -25,10 +25,10 @@
 	</dict>
 	<key>BTC</key>
 	<dict>
-		<key>factor</key>
-		<real>1e-08</real>
 		<key>url</key>
 		<string>https://blockchain.info/q/addressbalance/%@</string>
+		<key>factor</key>
+		<real>1e-08</real>
 		<key>name</key>
 		<string>Bitcoin</string>
 	</dict>
@@ -84,9 +84,23 @@
 	<key>PPC</key>
 	<dict>
 		<key>url</key>
-		<string>http://dogechain.info/chain/Dogecoin/q/addressbalance/%@</string>
+		<string>http://bkchain.org/PPC/api/v1/address/%@</string>
 		<key>name</key>
 		<string>Peercoin</string>
+	</dict>
+	<key>LTC</key>
+	<dict>
+		<key>url</key>
+		<string>http://bkchain.org/LTC/api/v1/address/%@</string>
+		<key>name</key>
+		<string>Litecoin</string>
+	</dict>
+	<key>NMC</key>
+	<dict>
+		<key>url</key>
+		<string>http://bkchain.org/NMC/api/v1/address/%@</string>
+		<key>name</key>
+		<string>Namecoin</string>
 	</dict>
 </dict>
 </plist>

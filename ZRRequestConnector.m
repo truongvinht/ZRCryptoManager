@@ -60,6 +60,23 @@
 
 #pragma mark - Wallet Methods
 
+/** Method to validate address
+ *  @param candiate is the address which needs to be checked
+ *  @return true if the address is valid
+ */
+- (BOOL)validateAddress:(NSString *)candidate {
+    
+    BOOL hasDots = [[candidate componentsSeparatedByString:@"."] count]>1;
+    BOOL hasSpaces = [[candidate componentsSeparatedByString:@" "] count]>1;
+    
+    if (hasSpaces||hasDots) {
+        return NO;
+    }
+    
+    NSPredicate *urlTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", @"(((\\w)*|([0-9]*))+)"];
+    
+    return [urlTest evaluateWithObject:candidate];
+}
 
 - (void)requestWalletValue:(NSString*)symbol forAddress:(NSString*)address{
     
@@ -80,8 +97,8 @@
         return;
     }
     
-    // invalid symbole
-    if (!address || [address length]<=0) {
+    // invalid symbol
+    if (![self validateAddress:address]||(!address || [address length]<=0)) {
         
         NSError *error = [NSError errorWithDomain:@"Invalid address for Wallet request" code:ZRequestErrorInvalidAddress userInfo:nil];
         
