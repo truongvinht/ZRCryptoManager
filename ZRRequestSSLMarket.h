@@ -1,8 +1,8 @@
 /*
  
- Exchange.h
+ ZRRequestSSLMarket.h
  
- Copyright (c) 13/01/2015 Truong Vinh Tran
+ Copyright (c) 17/01/2015 Truong Vinh Tran
  
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated documentation files (the "Software"), to deal
@@ -23,31 +23,26 @@
  THE SOFTWARE.
  */
 
-#ifndef EXCHANGE_H
-#define EXCHANGE_H
+#ifndef ZRREQUEST_SSL_MARKET__H
+#define ZRREQUEST_SSL_MARKET__H
 
 #import <Foundation/Foundation.h>
-#import <CoreData/CoreData.h>
+#import "ZRRequestConnector.h"
 
-/**  Database object for the exchange market*/
-@interface Exchange : NSManagedObject
+/*! Class to access the market data, which use SSL*/
+@interface ZRRequestSSLMarket : NSObject<NSURLConnectionDelegate>
 
-/// name of the market
-@property (nonatomic, retain) NSString * name;
+/** Method to init a new object for calling
+ *  @param target is the target class to handle response
+ *  @param marketID is the index of the market
+ */
+- (ZRRequestSSLMarket*)initWithTarget:(id<ZRequestConnectionDelegate>)target market:(NSUInteger)marketID;
 
-/// unique ID of the market (URL)
-@property (nonatomic, retain) NSString * uuid;
+/** Method to start the request*/
+- (void)start;
 
-/// coins connected to the market
-@property (nonatomic, retain) NSSet *coins;
-@end
-
-@interface Exchange (CoreDataGeneratedAccessors)
-
-- (void)addCoinsObject:(NSManagedObject *)value;
-- (void)removeCoinsObject:(NSManagedObject *)value;
-- (void)addCoins:(NSSet *)values;
-- (void)removeCoins:(NSSet *)values;
+/** Method to cancel the reuqest*/
+- (void)cancel;
 
 @end
 

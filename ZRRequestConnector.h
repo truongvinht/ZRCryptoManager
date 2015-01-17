@@ -44,6 +44,11 @@ typedef enum{
 #define ZREQ_MARKET_LIST_PLIST @"MarketList"
 #endif
 
+#ifndef ZREQ_CONNECTION_TIMEOUT 
+#define ZREQ_CONNECTION_TIMEOUT 30.0f //time out
+#endif
+
+
 /*! Protocol to handle callbacks*/
 @protocol ZRequestConnectionDelegate <NSObject>
 
@@ -97,6 +102,9 @@ typedef enum{
  *  @param market is the target market
  */
 - (void)requestMarketInformation:(NSUInteger)market;
+
+/** Method to cancel all market request*/
+- (void)cancelAllMarketRequest;
 
 @end
 

@@ -229,6 +229,14 @@
 
 - (BOOL)addWallet:(NSDictionary *)walletData{
     
+    
+    NSArray *objects = [ZRDataStorage fetchAll:@"Wallet" withKey:@"address" forValue:[walletData objectForKey:@"address"]];
+    
+    //check wether wallet exist
+    if ([objects count]>0) {
+        return YES;
+    }
+    
     //create a parent context for merge
     Wallet *wallet = [NSEntityDescription insertNewObjectForEntityForName:NSStringFromClass([Wallet class]) inManagedObjectContext:[self managedObjectContext]];
     wallet.address = [walletData objectForKey:@"address"];
@@ -242,6 +250,7 @@
     
     NSArray *objects = [ZRDataStorage fetchAll:@"Wallet" withKey:@"address" forValue:[walletData objectForKey:@"address"]];
     
+    //check wether wallet exist
     if ([objects count]==0) {
         return NO;
     }
@@ -274,9 +283,104 @@
     return [self saveContext];
 }
 
-- (void)removeWallet:(Wallet *)wallet{
-    [[self managedObjectContext] deleteObject:wallet];
-    [self saveContext];
+- (void)removeObject:(NSManagedObject*)managedObject{
+    if (managedObject) {
+        [[self managedObjectContext] deleteObject:managedObject];
+        [self saveContext];
+    }
+}
+
+
+- (BOOL)addMarket:(NSDictionary*)marketData{
+    
+    NSArray *objects = [ZRDataStorage fetchAll:@"Exchange" withKey:@"uuid" forValue:[marketData objectForKey:@"uuid"]];
+    
+    //market already exist
+    if ([objects count]>0) {
+        return YES;
+    }
+    
+    //create new market object
+    Exchange *market = [NSEntityDescription insertNewObjectForEntityForName:NSStringFromClass([Exchange class]) inManagedObjectContext:[self managedObjectContext]];
+    market.uuid = [marketData objectForKey:@"uuid"];
+    market.name = [marketData objectForKey:@"name"];
+    return [self saveContext];
+}
+
+
+- (BOOL)addExchanges:(NSArray*)list inMarket:(NSString*)uuid{
+    
+    NSArray *objects = [ZRDataStorage fetchAll:@"Exchange" withKey:@"uuid" forValue:uuid];
+    
+    //market not available
+    if ([objects count]==0) {
+        return NO;
+    }
+    
+    //read the market
+    Exchange *exchangeMarket = [objects firstObject];
+    
+    //load the market explorer dictionary
+    NSString *path = [[NSBundle mainBundle] pathForResource:ZREQ_MARKET_LIST_PLIST ofType:@"plist"];
+    NSArray *marketList = [NSArray arrayWithContentsOfFile:path];
+    
+    NSDictionary *marketMetadata = nil;
+    for (NSDictionary *marketItem in marketList) {
+        if ([[marketItem objectForKey:@"url"] isEqualToString:uuid]) {
+            marketMetadata = [marketItem objectForKey:@"coinstruct"];
+        }
+    }
+    
+    if (marketMetadata) {
+        
+        NSDate *date = [NSDate date];
+        
+        for (NSDictionary *coinData in list) {
+            Cryptocoin *coin = [NSEntityDescription insertNewObjectForEntityForName:NSStringFromClass([Cryptocoin class]) inManagedObjectContext:[self managedObjectContext]];
+            coin.updatedAt = date;
+            
+            //set buy price
+            id buyPrice =[coinData objectForKey:[marketMetadata objectForKey:@"buyPrice"]];
+            if ([buyPrice isKindOfClass:[NSNumber class]]) {
+                coin.buyPrice = buyPrice;
+            }else{
+                coin.buyPrice = [NSNumber numberWithDouble:[[NSString stringWithFormat:@"%@",buyPrice] doubleValue]];
+            }
+            
+            //set sell price
+            id sellPrice = [coinData objectForKey:[marketMetadata objectForKey:@"sellPrice"]];
+            if ([sellPrice isKindOfClass:[NSNumber class]]) {
+                coin.sellPrice = sellPrice;
+            }else{
+                coin.sellPrice = [NSNumber numberWithDouble:[[NSString stringWithFormat:@"%@",sellPrice] doubleValue]];
+            }
+            
+            //set high price
+            id highPrice = [coinData objectForKey:[marketMetadata objectForKey:@"highPrice"]];
+            if ([highPrice isKindOfClass:[NSNumber class]]) {
+                coin.highPrice = highPrice;
+            }else{
+                coin.highPrice = [NSNumber numberWithDouble:[[NSString stringWithFormat:@"%@",highPrice] doubleValue]];
+            }
+            
+            coin.symbol = [coinData objectForKey:[marketMetadata objectForKey:@"symbol"]];
+            
+            //concat the name
+            NSArray *nameComponents = [marketMetadata objectForKey:@"name"];
+            if ([nameComponents count]==2) {
+                coin.name = [NSString stringWithFormat:@"%@ / %@",[coinData objectForKey:[nameComponents firstObject]],[coinData objectForKey:[nameComponents lastObject]]];
+            }else{
+                coin.name = [marketMetadata objectForKey:@"name"];
+            }
+            coin.exchange = (Exchange*)[[self managedObjectContext] objectWithID:[exchangeMarket objectID]];
+        }
+        
+        
+        return [self saveContext];
+    }else{
+        //no market meta data
+        return NO;
+    }
 }
 
 @end

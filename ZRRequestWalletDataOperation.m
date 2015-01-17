@@ -90,7 +90,7 @@
     //start server request
     NSMutableURLRequest *quotesRequest = [NSMutableURLRequest requestWithURL:_url
                                                                  cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                                                             timeoutInterval:30.0f];
+                                                             timeoutInterval:ZREQ_CONNECTION_TIMEOUT];
     
     NSURLResponse *response = nil;
     NSError *error = nil;

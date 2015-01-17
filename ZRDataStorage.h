@@ -39,6 +39,8 @@
 
 //import the model objects
 #import "Wallet.h"
+#import "Exchange.h"
+#import "Cryptocoin.h"
 
 /*! Class to handle all data storage*/
 @interface ZRDataStorage : NSObject
@@ -64,6 +66,8 @@
  */
 + (NSArray*)fetchAll:(NSString*)obj withKey:(NSString*)key forValue:(NSString*)value;
 
+#pragma mark - Wallet
+
 /** Method to add a new wallet address into DB
  *  @param walletData is the dictionary with all wallet informations
  *  @return true is the wallet could be added
@@ -76,11 +80,25 @@
  */
 - (BOOL)updateWallet:(NSDictionary*)walletData;
 
-/** Method to remove a saved wallet
- *  @param wallet is target wallet for deleting 
+/** Method to remove a saved db object
+ *  @param managedObject is target object for deleting
  */
-- (void)removeWallet:(Wallet*)wallet;
+- (void)removeObject:(NSManagedObject*)managedObject;
 
+#pragma mark - Market
+
+/** Method to add a new market to the DB
+ *  @param marketData is the dictionary with all market informations
+ *  @return true if the market could be added
+ */
+- (BOOL)addMarket:(NSDictionary*)marketData;
+
+/** Method to add exchanges for target market
+ *  @param list is an array with exchanges as dictionary
+ *  @param uuid is the id of the market
+ *  @return true if the exchanges could be added
+ */
+- (BOOL)addExchanges:(NSArray*)list inMarket:(NSString*)uuid;
 @end
 
 #endif
