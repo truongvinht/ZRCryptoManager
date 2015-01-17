@@ -5,6 +5,8 @@
 	<dict>
 		<key>url</key>
 		<string>https://api.coin-swap.net/market/summary</string>
+		<key>type</key>
+		<string>NSArray</string>
 		<key>name</key>
 		<string>Coin-Swap</string>
 		<key>coinstruct</key>
@@ -22,6 +24,46 @@
 			<string>symbol</string>
 			<key>highPrice</key>
 			<string>dayhigh</string>
+		</dict>
+	</dict>
+	<dict>
+		<key>type</key>
+		<string>NSDictionary</string>
+		<key>url</key>
+		<string>https://c-cex.com/t/prices.json</string>
+		<key>name</key>
+		<string>C-Cex</string>
+		<key>coinstruct</key>
+		<dict>
+			<key>needsinverse</key>
+			<true/>
+			<key>buyPrice</key>
+			<string>lastsell</string>
+			<key>sellPrice</key>
+			<string>lastbuy</string>
+			<key>name</key>
+			<string>name</string>
+			<key>highPrice</key>
+			<string>high</string>
+		</dict>
+	</dict>
+	<dict>
+		<key>type</key>
+		<string>NSDictionary</string>
+		<key>url</key>
+		<string>https://bittrex.com/api/v1.1/public/getmarketsummaries</string>
+		<key>name</key>
+		<string>Bittrex</string>
+		<key>coinstruct</key>
+		<dict>
+			<key>buyPrice</key>
+			<string>Ask</string>
+			<key>sellPrice</key>
+			<string>Bid</string>
+			<key>name</key>
+			<string>MarketName</string>
+			<key>highPrice</key>
+			<string>High</string>
 		</dict>
 	</dict>
 </array>

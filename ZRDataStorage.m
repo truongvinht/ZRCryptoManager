@@ -56,6 +56,13 @@
     return instance;
 }
 
++ (NSNumber*)numbersOfFloatingPoints:(NSString*)symbol{
+
+    NSString *path = [[NSBundle mainBundle] pathForResource:ZRDATA_SYMBOL_LIST ofType:@"plist"];
+    NSDictionary *currencyDict = [NSDictionary dictionaryWithContentsOfFile:path];
+    return [currencyDict objectForKey:symbol];
+}
+
 /** Method to access the path to the home directory
  @return the path as string
  */
@@ -225,6 +232,44 @@
     }
 }
 
++ (NSArray*)fetchCryptoCoin:(NSString*)name forMarket:(NSString*)marketUUID{
+    
+    // invalid find input
+    if (marketUUID == nil) {
+        return nil;
+    }
+    
+    // no specific coins
+    if (name == nil) {
+        NSArray *results = [ZRDataStorage fetchAll:@"Exchange" withKey:@"uuid" forValue:marketUUID];
+        
+        if ([results count]>0) {
+            Exchange *exchange = [results lastObject];
+            return [exchange.coins allObjects];
+        }else{
+            return @[];
+        }
+    }
+    
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Cryptocoin" inManagedObjectContext:[[ZRDataStorage sharedInstance] managedObjectContext]];
+    [fetchRequest setEntity:entity];
+    
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name like %@ AND exchange.uuid like %@", name,marketUUID];
+    [fetchRequest setPredicate:predicate];
+    
+    NSError *error =  nil;
+    NSArray *items = [[[ZRDataStorage sharedInstance] managedObjectContext] executeFetchRequest:fetchRequest error:&error];
+    
+    if ([items count] > 0) {
+        return items;
+    }
+    else {
+        /// no result found
+        return [NSArray array];
+    }
+}
+
 #pragma mark - Wallet Methods
 
 - (BOOL)addWallet:(NSDictionary *)walletData{
@@ -336,7 +381,37 @@
         NSDate *date = [NSDate date];
         
         for (NSDictionary *coinData in list) {
-            Cryptocoin *coin = [NSEntityDescription insertNewObjectForEntityForName:NSStringFromClass([Cryptocoin class]) inManagedObjectContext:[self managedObjectContext]];
+            
+            
+            //concat the name
+            NSArray *nameComponents = [marketMetadata objectForKey:@"name"];
+            NSString *name = nil;
+            if ([nameComponents isKindOfClass:[NSArray class]]&&[nameComponents count]==2) {
+                name = [NSString stringWithFormat:@"%@/%@",[coinData objectForKey:[nameComponents firstObject]],[coinData objectForKey:[nameComponents lastObject]]];
+            }else{
+                
+                NSString *stringName = [coinData objectForKey:[marketMetadata objectForKey:@"name"]];
+                name = [stringName stringByReplacingOccurrencesOfString:@"-" withString:@"/"];
+            }
+            
+            //inverse name
+            if ([[marketMetadata objectForKey:@"needsinverse"] boolValue]) {
+                NSArray *components = [name componentsSeparatedByString:@"/"];
+                if ([components count]==2) {
+                    name = [NSString stringWithFormat:@"%@/%@",[components lastObject],[components firstObject]];
+                }
+            }
+            
+            name = [name uppercaseString];
+            
+            NSArray *savedEntries = [ZRDataStorage fetchCryptoCoin:name forMarket:uuid];
+            Cryptocoin *coin = nil;
+            if ([savedEntries count]>0) {
+                coin = [savedEntries lastObject];
+            }else{
+                coin = [NSEntityDescription insertNewObjectForEntityForName:NSStringFromClass([Cryptocoin class]) inManagedObjectContext:[self managedObjectContext]];
+            }
+            
             coin.updatedAt = date;
             
             //set buy price
@@ -363,15 +438,14 @@
                 coin.highPrice = [NSNumber numberWithDouble:[[NSString stringWithFormat:@"%@",highPrice] doubleValue]];
             }
             
-            coin.symbol = [coinData objectForKey:[marketMetadata objectForKey:@"symbol"]];
-            
-            //concat the name
-            NSArray *nameComponents = [marketMetadata objectForKey:@"name"];
-            if ([nameComponents count]==2) {
-                coin.name = [NSString stringWithFormat:@"%@ / %@",[coinData objectForKey:[nameComponents firstObject]],[coinData objectForKey:[nameComponents lastObject]]];
+            if ([marketMetadata objectForKey:@"symbol"]) {
+                coin.symbol = [coinData objectForKey:[marketMetadata objectForKey:@"symbol"]];
             }else{
-                coin.name = [marketMetadata objectForKey:@"name"];
+                coin.symbol = [[name componentsSeparatedByString:@"/"] firstObject];
             }
+            
+            coin.name = name;
+            
             coin.exchange = (Exchange*)[[self managedObjectContext] objectWithID:[exchangeMarket objectID]];
         }
         
@@ -381,6 +455,10 @@
         //no market meta data
         return NO;
     }
+}
+
+- (BOOL)updateExchange:(Cryptocoin*)coin{
+    return [self saveContext];
 }
 
 @end

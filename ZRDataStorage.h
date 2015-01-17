@@ -34,6 +34,10 @@
 #define ZRDATA_DB_PATH @"zrcryptoDB.sqlite"
 #endif
 
+#ifndef ZRDATA_SYMBOL_LIST
+#define ZRDATA_SYMBOL_LIST @"CurrencyList"
+#endif
+
 #import <Foundation/Foundation.h>
 #import <CoreData/CoreData.h>
 
@@ -59,13 +63,26 @@
  */
 + (ZRDataStorage*)sharedInstance;
 
+/** Class method to check the numbers of floating points
+ *  @param symbol is the symbol which needs to be checked
+ *  @return number of floating points
+ */
++ (NSNumber*)numbersOfFloatingPoints:(NSString*)symbol;
+
 /** Class method to find all objects for given key
  *  @param obj is the searching object class
  *  @param key is the search key
  *  @param value is the content for the key
+ *  @return list with all matched objects
  */
 + (NSArray*)fetchAll:(NSString*)obj withKey:(NSString*)key forValue:(NSString*)value;
 
+/** Method to find all cryptocoin for target market
+ *  @param name is the name of searching coin
+ *  @param marketUUID is the ID of the market
+ *  @return list with all matched coins
+ */
++ (NSArray*)fetchCryptoCoin:(NSString*)name forMarket:(NSString*)marketUUID;
 #pragma mark - Wallet
 
 /** Method to add a new wallet address into DB
@@ -99,6 +116,12 @@
  *  @return true if the exchanges could be added
  */
 - (BOOL)addExchanges:(NSArray*)list inMarket:(NSString*)uuid;
+
+/** Method to update the information of the coin
+ *  @param coin is the updated coin
+ *  @return true if the update is succesful
+ */
+- (BOOL)updateExchange:(Cryptocoin*)coin;
 @end
 
 #endif

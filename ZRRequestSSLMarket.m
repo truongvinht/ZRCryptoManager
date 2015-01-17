@@ -36,6 +36,9 @@
 ///target for handling response
 @property(nonatomic,weak) id<ZRequestConnectionDelegate> delegate;
 
+/// receiving data
+@property(nonatomic,strong) NSMutableData *receive;
+
 @end
 
 @implementation ZRRequestSSLMarket
@@ -70,6 +73,8 @@
                                                                  cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
                                                              timeoutInterval:ZREQ_CONNECTION_TIMEOUT];
     
+    [quotesRequest setValue:@"gzip" forHTTPHeaderField:@"Accept-Encoding"];
+    
     // Create url connection and fire request
     _connection = [[NSURLConnection alloc] initWithRequest:quotesRequest delegate:self startImmediately:YES];
 }
@@ -93,16 +98,16 @@
    [challenge.sender useCredential:[NSURLCredential credentialForTrust:challenge.protectionSpace.serverTrust] forAuthenticationChallenge:challenge];
 }
 
-//-(void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse*)response
-//{
-//}
+-(void)connection:(NSURLConnection*)connection didReceiveResponse:(NSURLResponse*)response
+{
+    //NSLog(@"response %@",response);
+    _receive = [NSMutableData data];
+}
 
 -(void)connection:(NSURLConnection*)connection didReceiveData:(NSData*)data
 {
-    //forward information
-    if ([_delegate respondsToSelector:@selector(didReceiveMarketData:market:)]) {
-        [_delegate didReceiveMarketData:data market:_marketID];
-    }
+    
+    [_receive appendData:data];
 
 }
 -(void)connection:(NSURLConnection*)connection didFailWithError:(NSError*)error
@@ -114,6 +119,12 @@
 }
 -(void)connectionDidFinishLoading:(NSURLConnection*)connection
 {
+    
+    
+    //forward information
+    if ([_delegate respondsToSelector:@selector(didReceiveMarketData:market:)]) {
+        [_delegate didReceiveMarketData:_receive market:_marketID];
+    }
     connection = nil;
 }
 

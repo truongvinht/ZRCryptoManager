@@ -30,6 +30,7 @@
 @implementation Cryptocoin
 
 @dynamic buyPrice;
+@dynamic favorite;
 @dynamic highPrice;
 @dynamic name;
 @dynamic sellPrice;

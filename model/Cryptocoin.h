@@ -37,6 +37,9 @@
 /// latest buy price
 @property (nonatomic, retain) NSNumber * buyPrice;
 
+/// flag wether it is in favorite list
+@property (nonatomic, retain) NSNumber * favorite;
+
 /// max price
 @property (nonatomic, retain) NSNumber * highPrice;
 

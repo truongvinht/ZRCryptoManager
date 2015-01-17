@@ -45,7 +45,7 @@ typedef enum{
 #endif
 
 #ifndef ZREQ_CONNECTION_TIMEOUT 
-#define ZREQ_CONNECTION_TIMEOUT 30.0f //time out
+#define ZREQ_CONNECTION_TIMEOUT 60.0f //time out
 #endif
 
 
