@@ -415,20 +415,10 @@
             coin.updatedAt = date;
             
             //set buy price
-            id buyPrice =[coinData objectForKey:[marketMetadata objectForKey:@"buyPrice"]];
-            if ([buyPrice isKindOfClass:[NSNumber class]]) {
-                coin.buyPrice = buyPrice;
-            }else{
-                coin.buyPrice = [NSNumber numberWithDouble:[[NSString stringWithFormat:@"%@",buyPrice] doubleValue]];
-            }
+            coin.buyPrice = [self convert:coinData meta:marketMetadata key:@"buyPrice"];
             
             //set sell price
-            id sellPrice = [coinData objectForKey:[marketMetadata objectForKey:@"sellPrice"]];
-            if ([sellPrice isKindOfClass:[NSNumber class]]) {
-                coin.sellPrice = sellPrice;
-            }else{
-                coin.sellPrice = [NSNumber numberWithDouble:[[NSString stringWithFormat:@"%@",sellPrice] doubleValue]];
-            }
+            coin.sellPrice = [self convert:coinData meta:marketMetadata key:@"sellPrice"];
             
             //set high price
             id highPrice = [coinData objectForKey:[marketMetadata objectForKey:@"highPrice"]];
@@ -454,6 +444,31 @@
     }else{
         //no market meta data
         return NO;
+    }
+}
+
+- (NSNumber*)convert:(NSDictionary*)inputDict meta:(NSDictionary*)meta key:(NSString*)key{
+    
+    //set buy price
+    id price =[inputDict objectForKey:[meta objectForKey:key]];
+    if ([price isKindOfClass:[NSNumber class]]) {
+        return price;
+    }else{
+        
+        //special format for crypty
+        if (!price) {
+            
+            NSString *tmpKey = [[[meta objectForKey:key] allKeys] lastObject];
+            if (![[inputDict objectForKey:tmpKey] isKindOfClass:[NSArray class]]||[[inputDict objectForKey:tmpKey] count]==0) {
+                return nil;
+            }
+            
+            price = [[inputDict objectForKey:tmpKey] firstObject];
+            
+            return [NSNumber numberWithDouble:[[price objectForKey:[[meta objectForKey:key] objectForKey:tmpKey]] doubleValue]];
+        }else{
+            return  [NSNumber numberWithDouble:[[NSString stringWithFormat:@"%@",price] doubleValue]];
+        }
     }
 }
 

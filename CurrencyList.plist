@@ -12,5 +12,33 @@
 	<integer>2</integer>
 	<key>RUB</key>
 	<integer>2</integer>
+	<key>BRL</key>
+	<integer>2</integer>
+	<key>CAD</key>
+	<integer>2</integer>
+	<key>CHF</key>
+	<integer>2</integer>
+	<key>IDR</key>
+	<integer>2</integer>
+	<key>ILS</key>
+	<integer>2</integer>
+	<key>MXN</key>
+	<integer>2</integer>
+	<key>NOK</key>
+	<integer>2</integer>
+	<key>NZD</key>
+	<integer>2</integer>
+	<key>PLN</key>
+	<integer>2</integer>
+	<key>RON</key>
+	<integer>2</integer>
+	<key>SEK</key>
+	<integer>2</integer>
+	<key>SGD</key>
+	<integer>2</integer>
+	<key>ZAR</key>
+	<integer>2</integer>
+	<key>AUD</key>
+	<integer>2</integer>
 </dict>
 </plist>

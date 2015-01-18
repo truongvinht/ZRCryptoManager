@@ -3,6 +3,65 @@
 <plist version="1.0">
 <array>
 	<dict>
+		<key>type</key>
+		<string>NSDictionary</string>
+		<key>url</key>
+		<string>https://api.bitcoinaverage.com/ticker/all</string>
+		<key>name</key>
+		<string>Bitcoin Average</string>
+		<key>coinstruct</key>
+		<dict>
+			<key>buyPrice</key>
+			<string>ask</string>
+			<key>sellPrice</key>
+			<string>bid</string>
+			<key>name</key>
+			<string>name</string>
+			<key>highPrice</key>
+			<string>last</string>
+		</dict>
+	</dict>
+	<dict>
+		<key>type</key>
+		<string>NSDictionary</string>
+		<key>url</key>
+		<string>https://bittrex.com/api/v1.1/public/getmarketsummaries</string>
+		<key>name</key>
+		<string>Bittrex</string>
+		<key>coinstruct</key>
+		<dict>
+			<key>buyPrice</key>
+			<string>Ask</string>
+			<key>sellPrice</key>
+			<string>Bid</string>
+			<key>name</key>
+			<string>MarketName</string>
+			<key>highPrice</key>
+			<string>High</string>
+		</dict>
+	</dict>
+	<dict>
+		<key>type</key>
+		<string>NSDictionary</string>
+		<key>url</key>
+		<string>https://c-cex.com/t/prices.json</string>
+		<key>name</key>
+		<string>C-Cex</string>
+		<key>coinstruct</key>
+		<dict>
+			<key>needsinverse</key>
+			<true/>
+			<key>buyPrice</key>
+			<string>lastsell</string>
+			<key>sellPrice</key>
+			<string>lastbuy</string>
+			<key>name</key>
+			<string>name</string>
+			<key>highPrice</key>
+			<string>high</string>
+		</dict>
+	</dict>
+	<dict>
 		<key>url</key>
 		<string>https://api.coin-swap.net/market/summary</string>
 		<key>type</key>
@@ -30,40 +89,29 @@
 		<key>type</key>
 		<string>NSDictionary</string>
 		<key>url</key>
-		<string>https://c-cex.com/t/prices.json</string>
+		<string>http://pubapi.cryptsy.com/api.php?method=marketdatav2</string>
 		<key>name</key>
-		<string>C-Cex</string>
+		<string>Cryptsy</string>
 		<key>coinstruct</key>
 		<dict>
 			<key>needsinverse</key>
 			<true/>
+			<key>symbol</key>
+			<string>primarycode</string>
 			<key>buyPrice</key>
-			<string>lastsell</string>
+			<dict>
+				<key>buyorders</key>
+				<string>price</string>
+			</dict>
 			<key>sellPrice</key>
-			<string>lastbuy</string>
+			<dict>
+				<key>sellorders</key>
+				<string>price</string>
+			</dict>
 			<key>name</key>
-			<string>name</string>
+			<string>label</string>
 			<key>highPrice</key>
-			<string>high</string>
-		</dict>
-	</dict>
-	<dict>
-		<key>type</key>
-		<string>NSDictionary</string>
-		<key>url</key>
-		<string>https://bittrex.com/api/v1.1/public/getmarketsummaries</string>
-		<key>name</key>
-		<string>Bittrex</string>
-		<key>coinstruct</key>
-		<dict>
-			<key>buyPrice</key>
-			<string>Ask</string>
-			<key>sellPrice</key>
-			<string>Bid</string>
-			<key>name</key>
-			<string>MarketName</string>
-			<key>highPrice</key>
-			<string>High</string>
+			<string>lasttradeprice</string>
 		</dict>
 	</dict>
 </array>
