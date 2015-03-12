@@ -77,6 +77,14 @@
  */
 + (NSArray*)fetchAll:(NSString*)obj withKey:(NSString*)key forValue:(NSString*)value;
 
+/** Class method to find all objects for given key using Object
+ *  @param obj is the searching object class
+ *  @param key is the search key
+ *  @param value is the content for the key
+ *  @return list with all matched objects
+ */
++ (NSArray*)fetchAll:(NSString *)obj withKey:(NSString *)key forObjectValue:(id)value;
+
 /** Method to find all cryptocoin for target market
  *  @param name is the name of searching coin
  *  @param marketUUID is the ID of the market

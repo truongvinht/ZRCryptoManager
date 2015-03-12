@@ -16,7 +16,10 @@
 			<key>sellPrice</key>
 			<string>bid</string>
 			<key>name</key>
-			<string>name</string>
+			<array>
+				<string>name</string>
+				<string>BTC</string>
+			</array>
 			<key>highPrice</key>
 			<string>last</string>
 		</dict>

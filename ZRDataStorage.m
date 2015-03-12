@@ -200,24 +200,39 @@
 
 + (NSArray*)fetchAll:(NSString*)obj withKey:(NSString*)key forValue:(NSString*)value{
     
+    return [ZRDataStorage fetchAll:obj withKey:key forObjectValue:value];
+}
+
++ (NSArray*)fetchAll:(NSString *)obj withKey:(NSString *)key forObjectValue:(id)value{
+    
     // invalid find input
     if (value == nil || [value isKindOfClass:[NSNull class]]) {
         return nil;
     }
     
-    // value is too short
-    if ([value length]==0) {
-        return nil;
-    }
     
     NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
     NSEntityDescription *entity = [NSEntityDescription entityForName:obj inManagedObjectContext:[[ZRDataStorage sharedInstance] managedObjectContext]];
     [fetchRequest setEntity:entity];
     
-    value = [value stringByReplacingOccurrencesOfString:@"\\" withString:@"\\\\"];
-    value = [value stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""];
+    //init predicate
+    NSPredicate *predicate = nil;
     
-    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K like %@",key, value];
+    if ([value isKindOfClass:[NSString class]]) {
+        
+        // value is too short
+        if ([value length]==0) {
+            return nil;
+        }
+        
+        value = [value stringByReplacingOccurrencesOfString:@"\\" withString:@"\\\\"];
+        value = [value stringByReplacingOccurrencesOfString:@"\"" withString:@"\\\""];
+        
+        predicate = [NSPredicate predicateWithFormat:@"%K like %@",key, value];
+    }else{
+        predicate = [NSPredicate predicateWithFormat:@"%K == %@",key,value];
+    }
+    
     [fetchRequest setPredicate:predicate];
     
     NSError *error =  nil;
@@ -387,7 +402,21 @@
             NSArray *nameComponents = [marketMetadata objectForKey:@"name"];
             NSString *name = nil;
             if ([nameComponents isKindOfClass:[NSArray class]]&&[nameComponents count]==2) {
-                name = [NSString stringWithFormat:@"%@/%@",[coinData objectForKey:[nameComponents firstObject]],[coinData objectForKey:[nameComponents lastObject]]];
+                
+                NSString *firstCurrency = [coinData objectForKey:[nameComponents firstObject]];
+                NSString *secondCurrency = [coinData objectForKey:[nameComponents lastObject]];
+                
+                if (!firstCurrency) {
+                    firstCurrency = [nameComponents firstObject];
+                }
+                
+                if (!secondCurrency) {
+                    secondCurrency = [nameComponents lastObject];
+                }
+                
+                name = [NSString stringWithFormat:@"%@/%@",firstCurrency,secondCurrency];
+                
+                
             }else{
                 
                 NSString *stringName = [coinData objectForKey:[marketMetadata objectForKey:@"name"]];
