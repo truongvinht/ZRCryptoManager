@@ -65,30 +65,6 @@
 		</dict>
 	</dict>
 	<dict>
-		<key>url</key>
-		<string>https://api.coin-swap.net/market/summary</string>
-		<key>type</key>
-		<string>NSArray</string>
-		<key>name</key>
-		<string>Coin-Swap</string>
-		<key>coinstruct</key>
-		<dict>
-			<key>buyPrice</key>
-			<string>ask</string>
-			<key>sellPrice</key>
-			<string>bid</string>
-			<key>name</key>
-			<array>
-				<string>exchange</string>
-				<string>symbol</string>
-			</array>
-			<key>symbol</key>
-			<string>symbol</string>
-			<key>highPrice</key>
-			<string>dayhigh</string>
-		</dict>
-	</dict>
-	<dict>
 		<key>type</key>
 		<string>NSDictionary</string>
 		<key>url</key>
