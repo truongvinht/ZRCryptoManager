@@ -247,6 +247,33 @@
     }
 }
 
++ (NSArray*)fetchAllWallets{
+    // Create the fetch request for the entity.
+    NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
+    // Edit the entity name as appropriate.
+    NSEntityDescription *entity = [NSEntityDescription entityForName:@"Wallet" inManagedObjectContext:[ZRDataStorage sharedInstance].managedObjectContext];
+    [fetchRequest setEntity:entity];
+    
+    // Set the batch size to a suitable number.
+    [fetchRequest setFetchBatchSize:25];
+    
+    // Edit the sort key as appropriate.
+    NSSortDescriptor *updatedDescriptor = [[NSSortDescriptor alloc] initWithKey:@"updatedAt" ascending:YES];
+    NSArray *sortDescriptors = [[NSArray alloc] initWithObjects:updatedDescriptor, nil];
+    [fetchRequest setSortDescriptors:sortDescriptors];
+    
+    NSError *error =  nil;
+    NSArray *items = [[[ZRDataStorage sharedInstance] managedObjectContext] executeFetchRequest:fetchRequest error:&error];
+    
+    if ([items count] > 0) {
+        return items;
+    }
+    else {
+        /// no result found
+        return [NSArray array];
+    }
+}
+
 + (NSArray*)fetchCryptoCoin:(NSString*)name forMarket:(NSString*)marketUUID{
     
     // invalid find input

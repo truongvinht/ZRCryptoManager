@@ -85,6 +85,11 @@
  */
 + (NSArray*)fetchAll:(NSString *)obj withKey:(NSString *)key forObjectValue:(id)value;
 
+/** Class method to fetch all wallet objects
+ *  @return an array with all saved wallets
+ */
++ (NSArray*)fetchAllWallets;
+
 /** Method to find all cryptocoin for target market
  *  @param name is the name of searching coin
  *  @param marketUUID is the ID of the market
