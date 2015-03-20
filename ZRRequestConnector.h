@@ -33,7 +33,8 @@ typedef enum{
     /// invalid symbol
     ZRRequesErrorInvalidSymbol = 1,
     ZRequestErrorInvalidAddress = 2,
-    ZRequestErrorNotSupportSymbol = 3
+    ZRequestErrorNotSupportSymbol = 3,
+    ZRequestErrorServerNotReachable = 4
 }ZRequestError;
 
 #ifndef ZREQ_WALLET_SOURCE_PLIST
@@ -47,7 +48,6 @@ typedef enum{
 #ifndef ZREQ_CONNECTION_TIMEOUT 
 #define ZREQ_CONNECTION_TIMEOUT 60.0f //time out
 #endif
-
 
 /*! Protocol to handle callbacks*/
 @protocol ZRequestConnectionDelegate <NSObject>

@@ -26,6 +26,20 @@
 #ifndef ZRREQ_WALLETDATA_OPERATION__H
 #define ZRREQ_WALLETDATA_OPERATION__H
 
+//short time out for the requests
+#ifndef ZRREQ_WALLET_SHORT_TIMEOUT
+#define ZRREQ_WALLET_SHORT_TIMEOUT 30
+#endif
+
+//acceptable range for requests
+#ifndef ZRREQ_STATUS_MIN
+#define ZRREQ_STATUS_MIN 200
+#endif
+
+#ifndef ZRREQ_STATUS_MAX
+#define ZRREQ_STATUS_MAX 300
+#endif
+
 #import <Foundation/Foundation.h>
 #import "ZRRequestConnector.h"
 

@@ -133,7 +133,6 @@
         if ([_delegate respondsToSelector:@selector(didFailedReceivingWalletData:)]) {
             [_delegate didFailedReceivingWalletData:error];
         }
-        
         return;
     }
 }

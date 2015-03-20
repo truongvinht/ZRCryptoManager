@@ -26,6 +26,15 @@
 #ifndef ZRREQUEST_SSL_MARKET__H
 #define ZRREQUEST_SSL_MARKET__H
 
+//acceptable range for requests
+#ifndef ZRREQ_STATUS_MIN
+#define ZRREQ_STATUS_MIN 200
+#endif
+
+#ifndef ZRREQ_STATUS_MAX
+#define ZRREQ_STATUS_MAX 300
+#endif
+
 #import <Foundation/Foundation.h>
 #import "ZRRequestConnector.h"
 

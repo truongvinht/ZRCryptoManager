@@ -39,6 +39,9 @@
 /// receiving data
 @property(nonatomic,strong) NSMutableData *receive;
 
+/// tmp url request for check
+@property(nonatomic,copy) NSURL *tmpURL;
+
 @end
 
 @implementation ZRRequestSSLMarket
@@ -54,6 +57,30 @@
     
 }
 
+
+typedef void(^ConnectionBlock)(NSInteger statusCode,NSError *error);
+
+/** Method to check server connection and return response code
+ *  @param block is the callback block
+ */
+- (void)checkServerConnection:(ConnectionBlock) block{
+    
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@://%@",[_tmpURL scheme],[_tmpURL host]]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    request.HTTPMethod = @"HEAD";
+    request.cachePolicy = NSURLRequestReloadIgnoringLocalAndRemoteCacheData;
+    request.timeoutInterval = ZREQ_CONNECTION_TIMEOUT;
+    
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:
+     ^(NSURLResponse *response, NSData *data, NSError *connectionError)
+     {
+         block([(NSHTTPURLResponse *)response statusCode],connectionError);
+     }];
+}
+
+
 - (void)start{
     //load the market explorer dictionary
     NSString *path = [[NSBundle mainBundle] pathForResource:ZREQ_MARKET_LIST_PLIST ofType:@"plist"];
@@ -68,15 +95,39 @@
     NSDictionary *selectedMarket = [marketList objectAtIndex:_marketID];
     NSString *serverURL = [selectedMarket objectForKey:@"url"];
     
-    //start server request
-    NSMutableURLRequest *quotesRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:serverURL]
-                                                                 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                                                             timeoutInterval:ZREQ_CONNECTION_TIMEOUT];
+    //check not empty url
+    if (!serverURL) {
+         NSError *error = [NSError errorWithDomain:@"Invalid URL" code:ZRequestErrorInvalidAddress userInfo:nil];
+        
+        if ([_delegate respondsToSelector:@selector(didFailedReceivingMarketData:)]) {
+            [_delegate didFailedReceivingMarketData:error];
+        }
+        return;
+    }else{
+        
+        _tmpURL = [NSURL URLWithString:serverURL];
+        
+        [self checkServerConnection:^(NSInteger statusCode, NSError *error) {
+            if (statusCode>= ZRREQ_STATUS_MIN && statusCode < ZRREQ_STATUS_MAX) {
+                //start server request
+                NSMutableURLRequest *quotesRequest = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:serverURL]
+                                                                             cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                                         timeoutInterval:ZREQ_CONNECTION_TIMEOUT];
+                
+                [quotesRequest setValue:@"gzip" forHTTPHeaderField:@"Accept-Encoding"];
+                
+                // Create url connection and fire request
+                _connection = [[NSURLConnection alloc] initWithRequest:quotesRequest delegate:self startImmediately:YES];
+            }else{
+                if ([_delegate respondsToSelector:@selector(didFailedReceivingMarketData:)]) {
+                    [_delegate didFailedReceivingMarketData:error];
+                }
+            }
+            _tmpURL = nil;
+        }];
+    }
     
-    [quotesRequest setValue:@"gzip" forHTTPHeaderField:@"Accept-Encoding"];
     
-    // Create url connection and fire request
-    _connection = [[NSURLConnection alloc] initWithRequest:quotesRequest delegate:self startImmediately:YES];
 }
 
 - (void)cancel{
@@ -119,8 +170,6 @@
 }
 -(void)connectionDidFinishLoading:(NSURLConnection*)connection
 {
-    
-    
     //forward information
     if ([_delegate respondsToSelector:@selector(didReceiveMarketData:market:)]) {
         [_delegate didReceiveMarketData:_receive market:_marketID];

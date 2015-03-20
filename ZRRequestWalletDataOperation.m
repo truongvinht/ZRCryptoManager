@@ -63,6 +63,29 @@
     _address = nil;
 }
 
+typedef void(^ConnectionBlock)(NSInteger statusCode,NSError *error);
+
+/** Method to check server connection and return response code
+ *  @param block is the callback block
+ */
+- (void)checkServerConnection:(ConnectionBlock) block{
+    
+    NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@://%@",[_url scheme],[_url host]]];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
+    request.HTTPMethod = @"HEAD";
+    request.cachePolicy = NSURLRequestReloadIgnoringLocalAndRemoteCacheData;
+    request.timeoutInterval = ZREQ_CONNECTION_TIMEOUT;
+    
+    [NSURLConnection sendAsynchronousRequest:request
+                                       queue:[NSOperationQueue mainQueue]
+                           completionHandler:
+     ^(NSURLResponse *response, NSData *data, NSError *connectionError)
+     {
+         block([(NSHTTPURLResponse *)response statusCode],connectionError);
+     }];
+}
+
+
 - (void)main{
     
     //check missing information
@@ -87,69 +110,81 @@
     _execute = YES;
     [self didChangeValueForKey:@"isExecuting"];
     
-    //start server request
-    NSMutableURLRequest *quotesRequest = [NSMutableURLRequest requestWithURL:_url
-                                                                 cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
-                                                             timeoutInterval:ZREQ_CONNECTION_TIMEOUT];
-    
-    NSURLResponse *response = nil;
-    NSError *error = nil;
-    
-    NSData *requestedData = [NSURLConnection sendSynchronousRequest:quotesRequest returningResponse:&response error:&error];
-
-    //check wether request is succssful
-    if (requestedData == nil || error != nil) {
-        NSLog(@"**ERROR GETTING QUOTES** (%@) with error: %@ ", [quotesRequest URL], error);
-        
-        if ([_target respondsToSelector:@selector(didFailedReceivingWalletData:)]) {
-            [_target didFailedReceivingWalletData:error];
+    [self checkServerConnection:^(NSInteger statuscode, NSError *error) {
+        if (statuscode>= ZRREQ_STATUS_MIN && statuscode < ZRREQ_STATUS_MAX) {
+            
+            //start server request
+            NSMutableURLRequest *quotesRequest = [NSMutableURLRequest requestWithURL:_url
+                                                                         cachePolicy:NSURLRequestReloadIgnoringLocalCacheData
+                                                                     timeoutInterval:ZREQ_CONNECTION_TIMEOUT];
+            
+            NSURLResponse *response = nil;
+            NSError *error = nil;
+            
+            NSData *requestedData = [NSURLConnection sendSynchronousRequest:quotesRequest returningResponse:&response error:&error];
+            
+            //check wether request is succssful
+            if (requestedData == nil || error != nil) {
+                NSLog(@"**ERROR GETTING QUOTES** (%@) with error: %@ ", [quotesRequest URL], error);
+                
+                if ([_target respondsToSelector:@selector(didFailedReceivingWalletData:)]) {
+                    [_target didFailedReceivingWalletData:error];
+                }
+                
+                // Set executing and finished states in KVO-compliance.
+                [self willChangeValueForKey:@"isExecuting"];
+                _execute = NO;
+                [self didChangeValueForKey:@"isExecuting"];
+                
+                [self willChangeValueForKey:@"isFinished"];
+                _finishing = YES;
+                [self didChangeValueForKey:@"isFinished"];
+                return;
+            }
+            
+            //try to extract the data as JSON
+            id quotes = [NSJSONSerialization JSONObjectWithData:requestedData options:NSJSONReadingMutableContainers error:&error];
+            
+            NSMutableDictionary *responseData = nil;
+            
+            //check wether its an array
+            if ([[quotes class] isSubclassOfClass:[NSArray class]]) {
+                responseData = [NSMutableDictionary dictionaryWithDictionary:[quotes lastObject]];
+            }
+            
+            //check wether response is a dictionary
+            if ([[quotes class] isSubclassOfClass:[NSDictionary class]]) {
+                responseData = [NSMutableDictionary dictionaryWithDictionary:quotes];
+            }
+            
+            
+            //parse it as string
+            if (!responseData) {
+                
+                responseData = [NSMutableDictionary dictionary];
+                
+                NSString *response =[[NSString alloc] initWithData:requestedData encoding:NSUTF8StringEncoding];
+                
+                //remove quotes
+                [responseData setObject:[response stringByReplacingOccurrencesOfString:@"\"" withString:@""] forKey:@"value"];
+            }
+            
+            //assign address
+            [responseData setObject:_address forKey:@"address"];
+            
+            //forward information
+            if ([_target respondsToSelector:@selector(didReceiveWalletData:)]) {
+                [_target didReceiveWalletData:responseData];
+            }
+        }else{
+            
+            if ([_target respondsToSelector:@selector(didFailedReceivingWalletData:)]) {
+                [_target didFailedReceivingWalletData:error];
+            }
         }
-        
-        // Set executing and finished states in KVO-compliance.
-        [self willChangeValueForKey:@"isExecuting"];
-        _execute = NO;
-        [self didChangeValueForKey:@"isExecuting"];
-        
-        [self willChangeValueForKey:@"isFinished"];
-        _finishing = YES;
-        [self didChangeValueForKey:@"isFinished"];
-        return;
-    }
-    
-    //try to extract the data as JSON
-    id quotes = [NSJSONSerialization JSONObjectWithData:requestedData options:NSJSONReadingMutableContainers error:&error];
-    
-    NSMutableDictionary *responseData = nil;
-    
-    //check wether its an array
-    if ([[quotes class] isSubclassOfClass:[NSArray class]]) {
-        responseData = [NSMutableDictionary dictionaryWithDictionary:[quotes lastObject]];
-    }
-    
-    //check wether response is a dictionary
-    if ([[quotes class] isSubclassOfClass:[NSDictionary class]]) {
-        responseData = [NSMutableDictionary dictionaryWithDictionary:quotes];
-    }
+    }];
     
     
-    //parse it as string
-    if (!responseData) {
-        
-        responseData = [NSMutableDictionary dictionary];
-        
-        NSString *response =[[NSString alloc] initWithData:requestedData encoding:NSUTF8StringEncoding];
-        
-        //remove quotes
-        [responseData setObject:[response stringByReplacingOccurrencesOfString:@"\"" withString:@""] forKey:@"value"];
-    }
-    
-    //assign address
-    [responseData setObject:_address forKey:@"address"];
-    
-    //forward information
-    if ([_target respondsToSelector:@selector(didReceiveWalletData:)]) {
-        [_target didReceiveWalletData:responseData];
-    }
     
     
     // Set executing and finished states in KVO-compliance.

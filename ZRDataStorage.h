@@ -96,6 +96,7 @@
  *  @return list with all matched coins
  */
 + (NSArray*)fetchCryptoCoin:(NSString*)name forMarket:(NSString*)marketUUID;
+
 #pragma mark - Wallet
 
 /** Method to add a new wallet address into DB
